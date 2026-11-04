@@ -1,4 +1,5 @@
--- Create table
+
+-- Create STUDENT table
 CREATE TABLE STUDENT (
     Student_ID INT PRIMARY KEY,
     Student_Name VARCHAR(50),
@@ -31,8 +32,11 @@ WHERE CGPA < 5.0;
 SELECT * FROM STUDENT
 WHERE CGPA > 8.0;
 
--- e) Increase IT students' CGPA by 0.5,
+-- e) PL/SQL program to increase IT students' CGPA
 -- without exceeding 10
-UPDATE STUDENT
-SET CGPA = LEAST(CGPA + 0.5, 10.0)
-WHERE Department = 'IT';
+BEGIN
+    UPDATE STUDENT
+    SET CGPA = LEAST(CGPA + 0.5, 10.0)
+    WHERE Department = 'IT';
+END;
+/
