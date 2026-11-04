@@ -4,10 +4,11 @@ const path = require('path');
 
 const PORT = 8000;
 const HOST = '0.0.0.0';
-const BASE_DIR = path.join(__dirname, 'DBMS_Flat_15');
+const ROOT_DIR = __dirname;
+const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
+const BASE_DIR = fs.existsSync(PUBLIC_DIR) ? PUBLIC_DIR : path.join(ROOT_DIR, 'DBMS_Flat_15');
 
 const server = http.createServer((req, res) => {
-    // Only accept GET and HEAD requests
     if (req.method !== 'GET' && req.method !== 'HEAD') {
         res.writeHead(405, { 'Content-Type': 'text/plain' });
         return res.end('Method Not Allowed\n');
@@ -16,8 +17,16 @@ const server = http.createServer((req, res) => {
     const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     let reqPath = decodeURIComponent(parsedUrl.pathname);
 
-    // Root endpoint: Return index list of available files
+    // Root endpoint
     if (reqPath === '/' || reqPath === '') {
+        const accept = req.headers['accept'] || '';
+        const indexHtml = path.join(BASE_DIR, 'index.html');
+
+        if (accept.includes('text/html') && fs.existsSync(indexHtml)) {
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            return fs.createReadStream(indexHtml).pipe(res);
+        }
+
         fs.readdir(BASE_DIR, (err, files) => {
             if (err) {
                 res.writeHead(500, { 'Content-Type': 'text/plain' });
@@ -77,8 +86,7 @@ const server = http.createServer((req, res) => {
             'Content-Disposition': `inline; filename="${filename}"`
         });
 
-        const readStream = fs.createReadStream(safePath);
-        readStream.pipe(res);
+        fs.createReadStream(safePath).pipe(res);
     });
 });
 
@@ -86,4 +94,3 @@ server.listen(PORT, HOST, () => {
     console.log(`DBMS Server running at http://${HOST}:${PORT}/`);
     console.log(`Serving SQL files from: ${BASE_DIR}`);
 });
-

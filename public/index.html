@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DBMS Practical SQL Server</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --heading: #f0f6fc;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --code-bg: #0d1117;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, monospace;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+    }
+    h1 {
+      color: var(--heading);
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    h1 span {
+      background: #238636;
+      color: #fff;
+      font-size: 0.8rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+      vertical-align: middle;
+    }
+    p.subtitle {
+      color: #8b949e;
+      margin-top: 0.5rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    h2 {
+      color: var(--heading);
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 0.8rem 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.9rem;
+      color: var(--green);
+      margin-bottom: 0.75rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
+      transition: border-color 0.2s;
+    }
+    .file-item:hover {
+      border-color: var(--accent);
+    }
+    .file-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-family: monospace;
+      font-size: 1rem;
+    }
+    .file-link:hover {
+      text-decoration: underline;
+    }
+    .copy-btn {
+      background: #21262d;
+      border: 1px solid var(--border);
+      color: #8b949e;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+    .copy-btn:hover {
+      color: #fff;
+      border-color: #8b949e;
+    }
+    footer {
+      text-align: center;
+      color: #8b949e;
+      font-size: 0.85rem;
+      margin-top: 2rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>DBMS Practical SQL Server <span>Online</span></h1>
+    <p class="subtitle">Direct raw SQL scripts (Programs 1 to 15) served statically for terminal and browser fetching.</p>
+  </header>
+
+  <div class="card">
+    <h2>Terminal Download Commands</h2>
+    <p style="margin-bottom: 0.5rem; font-size: 0.9rem; color: #8b949e;">Replace <code style="color: var(--accent)">10.sql</code> with any program from 1 to 15:</p>
+    
+    <p style="font-size: 0.85rem; color: #8b949e;">Mac / Linux (curl):</p>
+    <pre id="cmd-curl">curl -O https://.../10.sql</pre>
+
+    <p style="font-size: 0.85rem; color: #8b949e;">Windows PowerShell (curl.exe):</p>
+    <pre id="cmd-win">curl.exe -O https://.../10.sql</pre>
+
+    <p style="font-size: 0.85rem; color: #8b949e;">Download 1.sql and 15.sql:</p>
+    <pre id="cmd-multi">curl -O https://.../1.sql -O https://.../15.sql</pre>
+
+    <p style="font-size: 0.85rem; color: #8b949e;">Batch Download All (1 to 15):</p>
+    <pre id="cmd-batch">curl -O "https://.../[1-15].sql"</pre>
+  </div>
+
+  <div class="card">
+    <h2>Available SQL Programs</h2>
+    <div class="grid" id="fileGrid">
+      <!-- Generated via JS -->
+    </div>
+  </div>
+
+  <footer>
+    DBMS Practicals Repository &bull; Hosted on Vercel
+  </footer>
+
+  <script>
+    const origin = window.location.origin;
+    document.getElementById('cmd-curl').textContent = `curl -O ${origin}/10.sql`;
+    document.getElementById('cmd-win').textContent = `curl.exe -O ${origin}/10.sql`;
+    document.getElementById('cmd-multi').textContent = `curl -O ${origin}/1.sql -O ${origin}/15.sql`;
+    document.getElementById('cmd-batch').textContent = `curl -O "${origin}/[1-15].sql"`;
+
+    const grid = document.getElementById('fileGrid');
+    for (let i = 1; i <= 15; i++) {
+      const fileName = `${i}.sql`;
+      const div = document.createElement('div');
+      div.className = 'file-item';
+      div.innerHTML = `
+        <a class="file-link" href="/${fileName}" target="_blank">${fileName}</a>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('curl -O ${origin}/${fileName}'); alert('Copied curl command for ${fileName}')" title="Copy curl command">curl</button>
+      `;
+      grid.appendChild(div);
+    }
+  </script>
+</body>
+</html>

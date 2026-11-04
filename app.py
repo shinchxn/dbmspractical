@@ -1,22 +1,29 @@
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse, PlainTextResponse, HTMLResponse
 
 app = FastAPI(title="DBMS SQL Static Server")
 
-BASE_DIR = Path(__file__).resolve().parent / "DBMS_Flat_15"
+ROOT_DIR = Path(__file__).resolve().parent
+PUBLIC_DIR = ROOT_DIR / "public"
+BASE_DIR = PUBLIC_DIR if PUBLIC_DIR.is_dir() else (ROOT_DIR / "DBMS_Flat_15")
 
-@app.get("/", response_class=PlainTextResponse)
-def index():
-    if not BASE_DIR.is_dir():
-        return "DBMS_Flat_15 directory not found.\n"
+@app.get("/")
+def index(request: Request):
+    accept = request.headers.get("accept", "")
+    index_html = BASE_DIR / "index.html"
     
+    # If request is from a browser and index.html exists, serve HTML
+    if "text/html" in accept and index_html.is_file():
+        return HTMLResponse(content=index_html.read_text(encoding="utf-8"))
+    
+    # Otherwise serve plain text for curl/terminal
     files = sorted(
         [f.name for f in BASE_DIR.glob("*.sql")],
         key=lambda x: int(x.split(".")[0]) if x.split(".")[0].isdigit() else x
     )
     listing = "\n".join(f"  - {f}" for f in files)
-    return (
+    return PlainTextResponse(
         "=== DBMS Script Server ===\n\n"
         f"Available files ({len(files)} total):\n"
         f"{listing}\n\n"
@@ -50,6 +57,4 @@ def get_file(filename: str):
 
 if __name__ == "__main__":
     import uvicorn
-    # Bind to 0.0.0.0 to allow access from local machine and local network
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
