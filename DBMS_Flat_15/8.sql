@@ -1,28 +1,37 @@
--- 8. Create an EMPLOYEE table
+
+-- Create table
 CREATE TABLE EMPLOYEE (
-    E_ID INT PRIMARY KEY,
-    Name VARCHAR(20),
-    Dept VARCHAR(20)
+    EmpID INT PRIMARY KEY,
+    EmpName VARCHAR(50),
+    Department VARCHAR(50),
+    Salary DECIMAL(10,2)
 );
 
-INSERT INTO EMPLOYEE VALUES (1, 'Alice', 'IT');
-INSERT INTO EMPLOYEE VALUES (2, 'Bob', 'HR');
+-- Insert records
+INSERT INTO EMPLOYEE VALUES
+(1, 'Alice', 'IT', 60000),
+(2, 'Bob', 'HR', 45000),
+(3, 'Charlie', 'IT', 55000);
 
--- a) Create a synonym named STAFF for the table
-CREATE SYNONYM STAFF FOR EMPLOYEE;
+-- a) Create STAFF as a synonym-like view
+CREATE VIEW STAFF AS
+SELECT * FROM EMPLOYEE;
 
--- b) Retrieve employee details using the synonym
+-- b) Display employee details using STAFF
 SELECT * FROM STAFF;
 
--- c) Create a view named IT_STAFF for IT employees
-CREATE VIEW IT_STAFF AS 
-SELECT * FROM EMPLOYEE WHERE Dept = 'IT';
+-- c) Create view for IT employees
+CREATE VIEW IT_STAFF AS
+SELECT * FROM EMPLOYEE
+WHERE Department = 'IT';
 
--- d) Explain and demonstrate the difference
--- EXPLANATION:
--- A SYNONYM is just a nickname for the entire table (shows all data).
--- A VIEW is a virtual table based on a query (filters specific data).
+-- Display IT employees
+SELECT * FROM IT_STAFF;
 
--- DEMONSTRATION:
-SELECT * FROM STAFF;    -- Shows everyone (Alice and Bob)
-SELECT * FROM IT_STAFF; -- Shows ONLY IT employees (Alice)
+-- d) Difference between STAFF and IT_STAFF
+
+-- STAFF displays all employees
+SELECT * FROM STAFF;
+
+-- IT_STAFF displays only IT employees
+SELECT * FROM IT_STAFF;

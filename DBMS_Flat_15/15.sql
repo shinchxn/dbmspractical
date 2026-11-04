@@ -1,18 +1,27 @@
--- 15. Create Audit Table
+-- Create Audit Table
 CREATE TABLE EMPLOYEE_AUDIT (
-    E_ID INT,
-    Old_Sal NUMBER,
-    New_Sal NUMBER,
-    Op_Date DATE,
-    Op_Type VARCHAR(10)
+    EmpID INT,
+    OldSalary DECIMAL(10,2),
+    NewSalary DECIMAL(10,2),
+    OpDate DATE,
+    OpType VARCHAR(20)
 );
 
--- Update trigger to record salary changes
-CREATE OR REPLACE TRIGGER trg_audit_sal
-AFTER UPDATE OF Salary ON EMPLOYEE
+-- Create Update Trigger
+DELIMITER //
+
+CREATE TRIGGER salary_audit
+AFTER UPDATE ON EMPLOYEE
 FOR EACH ROW
 BEGIN
-    INSERT INTO EMPLOYEE_AUDIT 
-    VALUES (:OLD.E_ID, :OLD.Salary, :NEW.Salary, SYSDATE, 'UPDATE');
-END;
-/
+    INSERT INTO EMPLOYEE_AUDIT
+    VALUES (
+        OLD.EmpID,
+        OLD.Salary,
+        NEW.Salary,
+        CURDATE(),
+        'UPDATE'
+    );
+END //
+
+DELIMITER ;

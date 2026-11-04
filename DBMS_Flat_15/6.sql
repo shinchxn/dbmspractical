@@ -1,38 +1,73 @@
--- 6. Create MARKS table
-CREATE TABLE MARKS (
+-- Create table
+CREATE TABLE Marks (
     Regno INT PRIMARY KEY,
-    Name VARCHAR(20),
-    Dept VARCHAR(20),
-    S1 INT,
-    S2 INT,
-    S3 INT
+    Name VARCHAR(50),
+    Dept VARCHAR(50),
+    Subj1 INT,
+    Subj2 INT,
+    Subj3 INT
 );
 
-INSERT INTO MARKS VALUES (1, 'Alice', 'IT', 80, 85, 90);
-INSERT INTO MARKS VALUES (2, 'Bob', 'CSE', 70, 75, 80);
-INSERT INTO MARKS VALUES (3, 'Charlie', 'ECE', 95, 90, 85);
+-- Insert records
+INSERT INTO Marks VALUES
+(101, 'Alice', 'Computer Science', 85, 90, 88),
+(102, 'Bob', 'Information Tech', 70, 75, 80),
+(103, 'Charlie', 'Computer Science', 95, 98, 92),
+(104, 'David', 'Electronics', 60, 65, 70);
 
--- a) Add a column Total and update it with the sum of 3 subject marks
-ALTER TABLE MARKS ADD Total INT;
-UPDATE MARKS SET Total = S1 + S2 + S3;
+-- a) Add Total column
+ALTER TABLE Marks ADD Total INT;
 
--- b) Find the second maximum total in the table
-SELECT MAX(Total) FROM MARKS 
-WHERE Total < (SELECT MAX(Total) FROM MARKS);
+-- b) Calculate total
+UPDATE Marks
+SET Total = Subj1 + Subj2 + Subj3;
 
--- c) Display the name of the student with maximum total
-SELECT Name FROM MARKS 
-WHERE Total = (SELECT MAX(Total) FROM MARKS);
+-- Display all records
+SELECT * FROM Marks;
 
--- d) PL/SQL program to display report sheet using cursors
-SET SERVEROUTPUT ON;
-DECLARE
-    -- Cursor grabs all data from the table
-    CURSOR c_marks IS SELECT * FROM MARKS;
+-- c) Second highest total
+SELECT DISTINCT Total
+FROM Marks
+ORDER BY Total DESC
+LIMIT 1 OFFSET 1;
+
+-- d) Student with maximum total
+SELECT Name
+FROM Marks
+ORDER BY Total DESC
+LIMIT 1;
+
+-- e) Create cursor procedure
+DELIMITER //
+
+CREATE PROCEDURE GenerateReportSheet()
 BEGIN
-    -- FOR loop automatically opens, fetches, and closes the cursor
-    FOR r IN c_marks LOOP
-        DBMS_OUTPUT.PUT_LINE(r.Regno || ' | ' || r.Name || ' | Total: ' || r.Total);
+    DECLARE done INT DEFAULT 0;
+    DECLARE r INT;
+    DECLARE n VARCHAR(50);
+    DECLARE t INT;
+
+    DECLARE c CURSOR FOR
+        SELECT Regno, Name, Total FROM Marks;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    OPEN c;
+
+    read_loop: LOOP
+        FETCH c INTO r, n, t;
+
+        IF done = 1 THEN
+            LEAVE read_loop;
+        END IF;
+
+        SELECT r AS Regno, n AS Name, t AS Total;
     END LOOP;
-END;
-/
+
+    CLOSE c;
+END //
+
+DELIMITER ;
+
+-- Execute procedure
+CALL GenerateReportSheet();

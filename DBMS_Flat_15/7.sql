@@ -1,30 +1,39 @@
--- 7. Create tables with mapping
+
+-- Create tables
 CREATE TABLE stu_details (
     reg_no INT PRIMARY KEY,
-    stu_name VARCHAR(20),
+    stu_name VARCHAR(50),
     DOB DATE,
-    address VARCHAR(30),
-    city VARCHAR(20)
+    address VARCHAR(100),
+    city VARCHAR(50)
 );
 
 CREATE TABLE mark_details (
-    reg_no INT PRIMARY KEY REFERENCES stu_details(reg_no),
+    reg_no INT,
     mark1 INT,
     mark2 INT,
     mark3 INT,
-    total INT
+    total INT,
+    FOREIGN KEY (reg_no) REFERENCES stu_details(reg_no)
 );
 
--- Insert dummy data to test the queries
-INSERT INTO stu_details VALUES (1, 'Sam', '15-MAY-2000', '123 Main St', 'NY');
-INSERT INTO mark_details VALUES (1, 80, 90, 85, 255);
+-- Insert student records
+INSERT INTO stu_details VALUES
+(1, 'Alice', '2005-05-15', '123 Main St', 'Chennai'),
+(2, 'Bob', '2004-10-20', '456 Cross St', 'Mumbai');
 
--- a) Alter the table mark_details to add a column average with data type as long
-ALTER TABLE mark_details ADD average LONG;
+-- a) Add average column
+ALTER TABLE mark_details
+ADD average DECIMAL(10,2);
 
--- b) Display the months between the DOB and till date
-SELECT stu_name, TRUNC(MONTHS_BETWEEN(SYSDATE, DOB)) AS Months_Lived 
+-- b) Find months between DOB and current date
+SELECT stu_name, DOB,
+TIMESTAMPDIFF(MONTH, DOB, CURDATE()) AS Months
 FROM stu_details;
 
--- c) Using alter command drop the column address from the table stu_details
-ALTER TABLE stu_details DROP COLUMN address;
+-- c) Drop address column
+ALTER TABLE stu_details
+DROP COLUMN address;
+
+-- Display table structure
+DESC stu_details;

@@ -35,3 +35,4 @@ Lightweight static server and SQL scripts collection for DBMS practicals (Progra
   # Windows PowerShell
   curl.exe -O http://localhost:8000/1.sql -O http://localhost:8000/15.sql
   ```
+

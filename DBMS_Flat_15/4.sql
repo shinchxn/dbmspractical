@@ -1,74 +1,94 @@
--- 4. Create Tables
+
+-- Create tables
 CREATE TABLE STUDENT (
-    S_ID INT PRIMARY KEY,
-    S_Name VARCHAR(20)
+    StudentID INT PRIMARY KEY,
+    StudentName VARCHAR(50)
 );
 
 CREATE TABLE COURSE (
-    C_ID INT PRIMARY KEY,
-    C_Name VARCHAR(20)
+    CourseID INT PRIMARY KEY,
+    CourseName VARCHAR(50)
 );
 
 CREATE TABLE ENROLLMENT (
-    S_ID INT REFERENCES STUDENT(S_ID),
-    C_ID INT REFERENCES COURSE(C_ID),
-    PRIMARY KEY (S_ID, C_ID)
+    StudentID INT,
+    CourseID INT,
+    PRIMARY KEY (StudentID, CourseID),
+    FOREIGN KEY (StudentID) REFERENCES STUDENT(StudentID),
+    FOREIGN KEY (CourseID) REFERENCES COURSE(CourseID)
 );
 
--- Insert Data 
-INSERT INTO STUDENT VALUES (1, 'Alice');
-INSERT INTO STUDENT VALUES (2, 'Bob');
-INSERT INTO STUDENT VALUES (3, 'Charlie'); -- Charlie will have no courses
+-- Insert records
+INSERT INTO STUDENT VALUES
+(1, 'Alice'), (2, 'Bob'),
+(3, 'Charlie'), (4, 'David');
 
-INSERT INTO COURSE VALUES (10, 'DBMS');
-INSERT INTO COURSE VALUES (20, 'OS');
-INSERT INTO COURSE VALUES (30, 'JAVA');
+INSERT INTO COURSE VALUES
+(101, 'Math'), (102, 'Physics'),
+(103, 'Chemistry');
 
--- Alice takes 3 courses (to test condition 'd')
-INSERT INTO ENROLLMENT VALUES (1, 10);
-INSERT INTO ENROLLMENT VALUES (1, 20);
-INSERT INTO ENROLLMENT VALUES (1, 30);
--- Bob takes 1 course
-INSERT INTO ENROLLMENT VALUES (2, 10);
+INSERT INTO ENROLLMENT VALUES
+(1, 101), (1, 102), (1, 103),
+(2, 101), (3, 102);
 
--- a) Display student names with their enrolled course names (Inner Join)
-SELECT S.S_Name, C.C_Name 
-FROM STUDENT S 
-JOIN ENROLLMENT E ON S.S_ID = E.S_ID 
-JOIN COURSE C ON E.C_ID = C.C_ID;
+-- a) Display students with their courses
+SELECT s.StudentName, c.CourseName
+FROM STUDENT s
+JOIN ENROLLMENT e ON s.StudentID = e.StudentID
+JOIN COURSE c ON e.CourseID = c.CourseID;
 
--- b) Display all students, even those not enrolled (Outer Join)
-SELECT S.S_Name, C.C_Name 
-FROM STUDENT S 
-LEFT JOIN ENROLLMENT E ON S.S_ID = E.S_ID 
-LEFT JOIN COURSE C ON E.C_ID = C.C_ID;
+-- b) Display all students, including those without courses
+SELECT s.StudentName, c.CourseName
+FROM STUDENT s
+LEFT JOIN ENROLLMENT e ON s.StudentID = e.StudentID
+LEFT JOIN COURSE c ON e.CourseID = c.CourseID;
 
--- c) Display courses with the number of enrolled students
-SELECT C.C_Name, COUNT(E.S_ID) AS Total_Students
-FROM COURSE C 
-LEFT JOIN ENROLLMENT E ON C.C_ID = E.C_ID 
-GROUP BY C.C_Name;
+-- c) Count students in each course
+SELECT c.CourseName, COUNT(e.StudentID) AS NumberOfStudents
+FROM COURSE c
+LEFT JOIN ENROLLMENT e ON c.CourseID = e.CourseID
+GROUP BY c.CourseID, c.CourseName;
 
--- d) Retrieve students enrolled in more than two courses
-SELECT S.S_Name 
-FROM STUDENT S 
-JOIN ENROLLMENT E ON S.S_ID = E.S_ID 
-GROUP BY S.S_ID, S.S_Name 
-HAVING COUNT(E.C_ID) > 2;
+-- d) Students enrolled in more than two courses
+SELECT s.StudentName
+FROM STUDENT s
+JOIN ENROLLMENT e ON s.StudentID = e.StudentID
+GROUP BY s.StudentID, s.StudentName
+HAVING COUNT(e.CourseID) > 2;
 
--- e) PL/SQL program using an explicit cursor
-SET SERVEROUTPUT ON;
-DECLARE
-    -- Declare the explicit cursor
-    CURSOR c_enroll IS 
-        SELECT S.S_Name, C.C_Name 
-        FROM STUDENT S 
-        JOIN ENROLLMENT E ON S.S_ID = E.S_ID 
-        JOIN COURSE C ON E.C_ID = C.C_ID;
+-- e) Cursor to display student and course names
+DELIMITER //
+
+CREATE PROCEDURE DisplayStudentCourses()
 BEGIN
-    -- The FOR loop automatically opens, fetches, and closes the cursor
-    FOR rec IN c_enroll LOOP
-        DBMS_OUTPUT.PUT_LINE(rec.S_Name || ' - ' || rec.C_Name);
+    DECLARE done INT DEFAULT 0;
+    DECLARE sname VARCHAR(50);
+    DECLARE cname VARCHAR(50);
+
+    DECLARE cur CURSOR FOR
+        SELECT s.StudentName, c.CourseName
+        FROM STUDENT s
+        JOIN ENROLLMENT e ON s.StudentID = e.StudentID
+        JOIN COURSE c ON e.CourseID = c.CourseID;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    OPEN cur;
+
+    read_loop: LOOP
+        FETCH cur INTO sname, cname;
+
+        IF done = 1 THEN
+            LEAVE read_loop;
+        END IF;
+
+        SELECT CONCAT(sname, ' is enrolled in ', cname) AS Record;
     END LOOP;
-END;
-/
+
+    CLOSE cur;
+END //
+
+DELIMITER ;
+
+-- Execute procedure
+CALL DisplayStudentCourses();

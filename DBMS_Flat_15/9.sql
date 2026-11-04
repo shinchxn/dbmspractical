@@ -1,25 +1,54 @@
--- 9. Create BANK_ACCOUNT table
+
+-- Create table
 CREATE TABLE BANK_ACCOUNT (
-    Acc_No INT PRIMARY KEY,
-    Name VARCHAR(20),
-    Balance NUMBER
+    AccNo INT PRIMARY KEY,
+    AccName VARCHAR(50),
+    Balance DECIMAL(10,2)
 );
 
--- a) Insert two account records
-INSERT INTO BANK_ACCOUNT VALUES (1, 'Alice', 20000);
-INSERT INTO BANK_ACCOUNT VALUES (2, 'Bob', 10000);
-COMMIT; -- Save initial state
+-- a) Insert two accounts
+INSERT INTO BANK_ACCOUNT VALUES
+(101, 'Alice', 10000),
+(102, 'Bob', 5000);
 
--- c) Use SAVEPOINT before the transfer
+-- Display initial balance
+SELECT * FROM BANK_ACCOUNT;
+
+-- Start transaction
+START TRANSACTION;
+
+-- c) Create savepoint
 SAVEPOINT before_transfer;
 
--- b) Transfer ₹5,000 from Alice (1) to Bob (2)
-UPDATE BANK_ACCOUNT SET Balance = Balance - 5000 WHERE Acc_No = 1;
-UPDATE BANK_ACCOUNT SET Balance = Balance + 5000 WHERE Acc_No = 2;
+-- b) Transfer 5000 from Alice to Bob
+UPDATE BANK_ACCOUNT
+SET Balance = Balance - 5000
+WHERE AccNo = 101;
 
--- d) Demonstrate COMMIT and ROLLBACK
--- If an error occurred, we would undo the transfer like this:
--- ROLLBACK TO before_transfer;
+UPDATE BANK_ACCOUNT
+SET Balance = Balance + 5000
+WHERE AccNo = 102;
 
--- Since the transfer is successful, we save the changes permanently:
+-- Display balance after transfer
+SELECT * FROM BANK_ACCOUNT;
+
+-- d) Rollback the transfer
+ROLLBACK TO before_transfer;
+
+-- Display balance after rollback
+SELECT * FROM BANK_ACCOUNT;
+
+-- Transfer again
+UPDATE BANK_ACCOUNT
+SET Balance = Balance - 5000
+WHERE AccNo = 101;
+
+UPDATE BANK_ACCOUNT
+SET Balance = Balance + 5000
+WHERE AccNo = 102;
+
+-- Save changes permanently
 COMMIT;
+
+-- Display final balance
+SELECT * FROM BANK_ACCOUNT;

@@ -1,40 +1,59 @@
--- 5. Create EMPLOYEE table
+
+-- Create table
 CREATE TABLE EMPLOYEE (
-    E_ID INT PRIMARY KEY,
-    Name VARCHAR(20),
-    Dept VARCHAR(20),
-    Salary NUMBER,
-    Desig VARCHAR(20)
+    EmpID INT PRIMARY KEY,
+    EmpName VARCHAR(50),
+    Department VARCHAR(50),
+    Salary DECIMAL(10,2),
+    Designation VARCHAR(50)
 );
 
-INSERT INTO EMPLOYEE VALUES (1, 'John', 'IT', 60000, 'Dev');
-INSERT INTO EMPLOYEE VALUES (2, 'Mary', 'HR', 45000, 'Manager');
-INSERT INTO EMPLOYEE VALUES (3, 'Steve', 'IT', 45000, 'Tester');
+-- Insert records
+INSERT INTO EMPLOYEE VALUES
+(1, 'Alice', 'IT', 60000, 'Developer'),
+(2, 'Bob', 'HR', 45000, 'Recruiter'),
+(3, 'Charlie', 'IT', 48000, 'Tester'),
+(4, 'David', 'IT', 75000, 'Manager');
 
--- a) Create a view displaying only IT employees
-CREATE VIEW IT_EMP AS 
-SELECT * FROM EMPLOYEE WHERE Dept = 'IT';
+-- a) Create view for IT employees
+CREATE VIEW IT_Employees AS
+SELECT * FROM EMPLOYEE
+WHERE Department = 'IT';
 
--- b) Retrieve employees through the view with salary > 50,000
-SELECT * FROM IT_EMP WHERE Salary > 50000;
+-- b) Employees earning more than 50000
+SELECT * FROM IT_Employees
+WHERE Salary > 50000;
 
--- c) Update an employee's designation through the view
-UPDATE IT_EMP SET Desig = 'Lead Dev' WHERE E_ID = 1;
+-- c) Update employee designation
+UPDATE IT_Employees
+SET Designation = 'Senior Developer'
+WHERE EmpID = 1;
 
--- d) PL/SQL block to accept ID and display details using SELECT INTO
-SET SERVEROUTPUT ON;
-DECLARE
-    v_eid INT := 1; -- Hardcoded for instant execution
-    v_name VARCHAR(20);
-    v_dept VARCHAR(20);
-    v_sal NUMBER;
-    v_desig VARCHAR(20);
+-- Display updated records
+SELECT * FROM IT_Employees;
+
+-- d) Procedure to display employee details
+DELIMITER //
+
+CREATE PROCEDURE GetEmployeeDetails(IN id INT)
 BEGIN
-    SELECT Name, Dept, Salary, Desig 
-    INTO v_name, v_dept, v_sal, v_desig 
-    FROM EMPLOYEE 
-    WHERE E_ID = v_eid;
-    
-    DBMS_OUTPUT.PUT_LINE(v_name || ' | ' || v_dept || ' | ' || v_sal || ' | ' || v_desig);
-END;
-/
+    DECLARE name VARCHAR(50);
+    DECLARE dept VARCHAR(50);
+    DECLARE sal DECIMAL(10,2);
+    DECLARE desig VARCHAR(50);
+
+    SELECT EmpName, Department, Salary, Designation
+    INTO name, dept, sal, desig
+    FROM EMPLOYEE
+    WHERE EmpID = id;
+
+    SELECT name AS EmployeeName,
+           dept AS Department,
+           sal AS Salary,
+           desig AS Designation;
+END //
+
+DELIMITER ;
+
+-- Execute procedure
+CALL GetEmployeeDetails(1);

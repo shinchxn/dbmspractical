@@ -1,11 +1,27 @@
--- 14. PL/SQL block to accept an employee ID and retrieve salary
-SET SERVEROUTPUT ON;
-DECLARE
-    v_sal NUMBER;
+-- Create table
+CREATE TABLE EMPLOYEE (
+    EmpID INT PRIMARY KEY,
+    EmpName VARCHAR(50),
+    Salary DECIMAL(10,2)
+);
+
+-- Insert records
+INSERT INTO EMPLOYEE VALUES
+(1, 'Alice', 30000),
+(2, 'Bob', 40000),
+(3, 'Charlie', 50000);
+
+-- Create procedure
+DELIMITER //
+
+CREATE PROCEDURE GetSalary(IN id INT)
 BEGIN
-    -- The '&' prompts the user to enter an ID when executed
-    SELECT Salary INTO v_sal FROM EMPLOYEE WHERE E_ID = &Enter_Emp_ID;
-    
-    DBMS_OUTPUT.PUT_LINE('Employee Salary: ' || v_sal);
-END;
-/
+    SELECT Salary
+    FROM EMPLOYEE
+    WHERE EmpID = id;
+END //
+
+DELIMITER ;
+
+-- Execute procedure
+CALL GetSalary(1);

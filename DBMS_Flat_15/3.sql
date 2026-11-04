@@ -1,38 +1,53 @@
--- 3. Create the EMPLOYEE table
+
+-- Create Employee table
 CREATE TABLE EMPLOYEE (
-    Emp_ID INT PRIMARY KEY,
-    Name VARCHAR(20),
-    Department VARCHAR(20),
-    Salary NUMBER
+    EmpID INT PRIMARY KEY,
+    EmpName VARCHAR(50),
+    Department VARCHAR(50),
+    Salary DECIMAL(10,2)
 );
 
-INSERT INTO EMPLOYEE VALUES (1, 'Alice', 'IT', 60000);
-INSERT INTO EMPLOYEE VALUES (2, 'Bob', 'HR', 40000);
-INSERT INTO EMPLOYEE VALUES (3, 'Charlie', 'IT', 80000);
-INSERT INTO EMPLOYEE VALUES (4, 'David', 'FIN', 75000);
-INSERT INTO EMPLOYEE VALUES (5, 'Eve', 'HR', 45000);
+-- Insert records
+INSERT INTO EMPLOYEE VALUES
+(1, 'Alice', 'IT', 60000),
+(2, 'Bob', 'HR', 40000),
+(3, 'Charlie', 'IT', 75000),
+(4, 'David', 'Sales', 50000),
+(5, 'Eve', 'HR', 45000),
+(6, 'Frank', 'Sales', 50000);
 
--- a) Display employees earning more than the overall average salary
-SELECT * FROM EMPLOYEE 
+-- a) Employees earning above average salary
+SELECT *
+FROM EMPLOYEE
 WHERE Salary > (SELECT AVG(Salary) FROM EMPLOYEE);
 
--- b) Find the employee receiving the second-highest salary
-SELECT * FROM EMPLOYEE 
-WHERE Salary = (SELECT MAX(Salary) FROM EMPLOYEE WHERE Salary < (SELECT MAX(Salary) FROM EMPLOYEE));
+-- b) Employee receiving second-highest salary
+SELECT *
+FROM EMPLOYEE
+ORDER BY Salary DESC
+LIMIT 1 OFFSET 1;
 
--- c) Display employees earning more than their department's average salary
-SELECT * FROM EMPLOYEE e1 
-WHERE Salary > (SELECT AVG(Salary) FROM EMPLOYEE e2 WHERE e1.Department = e2.Department);
+-- c) Employees earning above their department average
+SELECT *
+FROM EMPLOYEE e1
+WHERE Salary > (
+    SELECT AVG(Salary)
+    FROM EMPLOYEE e2
+    WHERE e1.Department = e2.Department
+);
 
--- d) PL/SQL block to find and display the second-highest distinct salary
-SET SERVEROUTPUT ON;
-DECLARE
-    v_sec_sal NUMBER;
+-- d) Procedure to find second-highest distinct salary
+DELIMITER //
+
+CREATE PROCEDURE GetSecondHighestSalary()
 BEGIN
-    SELECT MAX(Salary) INTO v_sec_sal 
-    FROM EMPLOYEE 
-    WHERE Salary < (SELECT MAX(Salary) FROM EMPLOYEE);
-    
-    DBMS_OUTPUT.PUT_LINE('2nd Highest Salary: ' || v_sec_sal);
-END;
-/
+    SELECT DISTINCT Salary
+    FROM EMPLOYEE
+    ORDER BY Salary DESC
+    LIMIT 1 OFFSET 1;
+END //
+
+DELIMITER ;
+
+-- Execute procedure
+CALL GetSecondHighestSalary();
