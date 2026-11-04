@@ -72,3 +72,35 @@ JOIN ENROLLMENT e
 ON s.StudentID = e.StudentID
 GROUP BY s.StudentID, s.StudentName
 HAVING COUNT(e.CourseID) > 2;
+
+
+SET SERVEROUTPUT ON;
+
+DECLARE
+    CURSOR student_cursor IS
+        SELECT s.StudentName, c.CourseName
+        FROM STUDENT s
+        JOIN ENROLLMENT e
+        ON s.StudentID = e.StudentID
+        JOIN COURSE c
+        ON e.CourseID = c.CourseID;
+
+    sname STUDENT.StudentName%TYPE;
+    cname COURSE.CourseName%TYPE;
+
+BEGIN
+    OPEN student_cursor;
+
+    LOOP
+        FETCH student_cursor INTO sname, cname;
+
+        EXIT WHEN student_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE(
+            sname || ' is enrolled in ' || cname
+        );
+    END LOOP;
+
+    CLOSE student_cursor;
+END;
+/
