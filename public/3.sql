@@ -24,13 +24,8 @@ WHERE Salary > (SELECT AVG(Salary) FROM EMPLOYEE);
 -- b) Employee receiving second-highest distinct salary
 SELECT *
 FROM EMPLOYEE
-WHERE Salary = (
-    SELECT MAX(Salary)
-    FROM EMPLOYEE
-    WHERE Salary < (
-        SELECT MAX(Salary) FROM EMPLOYEE
-    )
-);
+ORDER BY Salary DESC
+LIMIT 1 OFFSET 1;
 
 -- c) Employees earning more than department average
 SELECT *
