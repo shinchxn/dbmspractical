@@ -1,27 +1,26 @@
 -- Create table
 CREATE TABLE EMPLOYEE (
     EmpID INT PRIMARY KEY,
-    EmpName VARCHAR(50),
-    Salary DECIMAL(10,2)
+    EmpName VARCHAR2(50),
+    Salary NUMBER(10,2)
 );
 
 -- Insert records
-INSERT INTO EMPLOYEE VALUES
-(1, 'Alice', 30000),
-(2, 'Bob', 40000),
-(3, 'Charlie', 50000);
+INSERT INTO EMPLOYEE VALUES (1, 'Alice', 30000);
+INSERT INTO EMPLOYEE VALUES (2, 'Bob', 40000);
+INSERT INTO EMPLOYEE VALUES (3, 'Charlie', 50000);
 
--- Create procedure
-DELIMITER //
+-- PL/SQL block
+SET SERVEROUTPUT ON;
 
-CREATE PROCEDURE GetSalary(IN id INT)
+DECLARE
+    id NUMBER := 1;
+    sal NUMBER(10,2);
 BEGIN
-    SELECT Salary
+    SELECT Salary INTO sal
     FROM EMPLOYEE
     WHERE EmpID = id;
-END //
 
-DELIMITER ;
-
--- Execute procedure
-CALL GetSalary(1);
+    DBMS_OUTPUT.PUT_LINE('Salary = ' || sal);
+END;
+/
