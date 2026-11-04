@@ -1,5 +1,5 @@
 
--- Create Employee table
+-- Create EMPLOYEE table
 CREATE TABLE EMPLOYEE (
     EmpID INT PRIMARY KEY,
     EmpName VARCHAR(50),
@@ -7,7 +7,7 @@ CREATE TABLE EMPLOYEE (
     Salary DECIMAL(10,2)
 );
 
--- Insert records
+-- Insert 6 records
 INSERT INTO EMPLOYEE VALUES
 (1, 'Alice', 'IT', 60000),
 (2, 'Bob', 'HR', 40000),
@@ -16,18 +16,23 @@ INSERT INTO EMPLOYEE VALUES
 (5, 'Eve', 'HR', 45000),
 (6, 'Frank', 'Sales', 50000);
 
--- a) Employees earning above average salary
+-- a) Employees earning more than average salary
 SELECT *
 FROM EMPLOYEE
 WHERE Salary > (SELECT AVG(Salary) FROM EMPLOYEE);
 
--- b) Employee receiving second-highest salary
+-- b) Employee receiving second-highest distinct salary
 SELECT *
 FROM EMPLOYEE
-ORDER BY Salary DESC
-LIMIT 1 OFFSET 1;
+WHERE Salary = (
+    SELECT MAX(Salary)
+    FROM EMPLOYEE
+    WHERE Salary < (
+        SELECT MAX(Salary) FROM EMPLOYEE
+    )
+);
 
--- c) Employees earning above their department average
+-- c) Employees earning more than department average
 SELECT *
 FROM EMPLOYEE e1
 WHERE Salary > (
@@ -37,17 +42,17 @@ WHERE Salary > (
 );
 
 -- d) Procedure to find second-highest distinct salary
-DELIMITER //
 
-CREATE PROCEDURE GetSecondHighestSalary()
+DECLARE
+    second_salary NUMBER;
 BEGIN
-    SELECT DISTINCT Salary
+    SELECT MAX(Salary)
+    INTO second_salary
     FROM EMPLOYEE
-    ORDER BY Salary DESC
-    LIMIT 1 OFFSET 1;
-END //
+    WHERE Salary < (SELECT MAX(Salary) FROM EMPLOYEE);
 
-DELIMITER ;
-
--- Execute procedure
-CALL GetSecondHighestSalary();
+    DBMS_OUTPUT.PUT_LINE(
+        'Second Highest Salary: ' || second_salary
+    );
+END;
+/

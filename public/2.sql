@@ -1,7 +1,3 @@
--- Clean up existing tables/procedures if you run this script multiple times
-DROP PROCEDURE IF EXISTS CountEmployeesInDept;
-DROP TABLE IF EXISTS EMPLOYEE;
-DROP TABLE IF EXISTS DEPARTMENT;
 
 -- 2. Create Tables
 CREATE TABLE DEPARTMENT (
